@@ -1,0 +1,24 @@
+<div class="container">
+    <div class="card mt-5">
+        <div class="card-body">
+          <h5 class="card-title">StarShip Details</h5>
+          <div >
+              <ul>
+                  <li class="d-flex justify-content-between">
+                      <div class="d-flex flex-wrap">
+                        <p><b>Name:</b> {{starshipProps?.name}} / </p>
+                        <p><b>Length:</b> {{starshipProps?.length | formatlength}}/ </p>
+                        <p><b>Model:</b> {{starshipProps?.model}} / </p>
+                        <p><b>Passengers:</b> {{starshipProps?.passengers}} / </p>
+                        <p><b>Manufacturer:</b> {{starshipProps?.manufacturer}}</p>
+
+                      </div>
+                  </li>
+              </ul>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end">
+        <button type="button" routerLink="../">Back</button>
+      </div>
+</div>

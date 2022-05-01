@@ -1,0 +1,17 @@
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/fontawesome/4.7.0/css/font-awesome.min.css"
+/>
+<div class="topnav">
+  <div *ngFor="let value of searchedValues">
+    <a (click)="reuseValue(value)">{{value}}</a>
+  
+  </div>
+  <a *ngIf="!searchedValues?.length" class="text-center"><b>No search values!</b></a>
+  <div class="search-container">
+    <form>
+      <input [(ngModel)]="searchedField"  type="text" placeholder="Search.." #searched name="searchedField" />
+      <button type="button" (click)="onSearchClick(searchedField)"><i  class="fa fa-search"></i></button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+
+<div class="container">
+    <div class="card mt-5">
+        <div class="card-body">
+          <h5 class="card-title">People</h5>
+          <div *ngIf="!checkForResults">
+              <ul *ngFor="let person of peopleList" class="d-flex justify-content-between">
+                  <li class="d-flex">
+                      <p>{{person.name}} /</p>
+                      <p><b>Height:</b> {{person.height! | formatHeight}} /</p>
+                      <p><b>HomeWorld:</b> {{person.homeworld}}</p>
+                  </li>
+                  <a class="mr-5" (click)="getDetailsOfPeople(person.url!)">More Details</a>
+              </ul>
+          </div>
+          <p *ngIf="checkForResults" class="text-center"><b>No results found!</b></p>
+        </div>
+      </div>
+</div>

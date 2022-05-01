@@ -1,0 +1,22 @@
+<div class="container">
+    <div class="card mt-5">
+        <div class="card-body">
+          <h5 class="card-title">StarShips</h5>
+          <div >
+            <div *ngIf="!checkForResults">
+                <ul *ngFor="let starShip of starShipList">
+                    <li class="d-flex justify-content-between">
+                        <div class="d-flex">
+                          <p>{{starShip.name}} /</p>
+                          <p><b>Length:</b> {{starShip.length! | formatlength}}</p>
+                        </div>
+                        <a class="mr-5" (click)="getDetails(starShip.url!)">More Details</a>
+                    </li>
+                </ul>
+            </div>
+            <p *ngIf="checkForResults" class="text-center"><b>No results found!</b></p>
+          </div>
+        </div>
+      </div>
+</div>
+<router-outlet></router-outlet>
