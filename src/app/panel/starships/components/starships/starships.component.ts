@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { CommonService } from 'src/app/shared/services/common.service';
 import { Starship, StarshipResponse } from '../../models/starships.model';
 import { StarshipsService } from '../../services/starships.service';
@@ -13,7 +14,8 @@ import { StarshipsService } from '../../services/starships.service';
 export class StarshipsComponent implements OnInit {
   starShipList: Starship[] = [];
   checkForResults!: boolean;
-  savedSearchedValues: any = []
+  savedSearchedValues: any = [];
+  private onComponentDestroy: Subject<void> = new Subject<void>();
   constructor(private starshipsService: StarshipsService, 
               private commonService: CommonService, 
               private router: Router,
@@ -27,20 +29,24 @@ export class StarshipsComponent implements OnInit {
     this.starshipsService.getStarshipsList().pipe(
       tap((el: StarshipResponse)=>{
         this.starShipList = el.results;
-        console.log(el)
-      })
+      }),
+      takeUntil(this.onComponentDestroy)
     ).subscribe()
   }
 
   showAndCheckForData(){
-    this.commonService.noResultsFound.subscribe((areData:boolean)=>{
-        this.checkForResults = areData
-    })
-    this.commonService.onSearchButtonClick.subscribe((list:any)=>{
-      console.log(list)
-      this.starShipList = list.results;
-      this.commonService.formatAndSaveSearched(this.savedSearchedValues);
-    })
+    this.commonService.noResultsFound.pipe(
+      tap((areData:boolean)=>{
+        this.checkForResults = areData}),
+        takeUntil(this.onComponentDestroy)
+      ).subscribe()
+    this.commonService.onSearchButtonClick.pipe(
+      tap((list:any)=>{
+        this.starShipList = list.results;
+        this.commonService.formatAndSaveSearched(this.savedSearchedValues);
+      }),
+      takeUntil(this.onComponentDestroy)
+    ).subscribe()
   }
   getDetails(url:string){
     this.starshipsService.getStarshipDetail(url).pipe(
@@ -50,7 +56,12 @@ export class StarshipsComponent implements OnInit {
         this.router.navigate([`${idSelected}`], {
           relativeTo: this.route,
         });
-      })
+      }),
+      takeUntil(this.onComponentDestroy)
     ).subscribe()
+  }
+  ngOnDestroy(){
+    this.onComponentDestroy.next();
+    this.onComponentDestroy.complete();
   }
 }

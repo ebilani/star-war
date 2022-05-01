@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostListener, OnInit, Renderer2 } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { PeopleService } from '../../services/people.service';
-import { map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
+import { map, mergeMap, reduce, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { People, PeopleResponse } from '../../models/people.model';
-import { forkJoin, from, Observable } from 'rxjs';
+import { from, Subject } from 'rxjs';
 import { Planet } from 'src/app/panel/planet/models/planet.model';
 import { CommonService } from 'src/app/shared/services/common.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +15,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class PeopleComponent implements OnInit {
   peopleList: People[] = [];
   checkForResults!: boolean;
-  savedSearchedValues: any = []
+  savedSearchedValues: any = [];
+  private onComponentDestroy: Subject<void> = new Subject<void>();
   constructor(private peopleService: PeopleService, 
              private commonService: CommonService,
              private router: Router,
@@ -44,17 +45,23 @@ export class PeopleComponent implements OnInit {
         map((mappedPersonObj: People) => {
           this.peopleList.push(mappedPersonObj)
         }),
+        takeUntil(this.onComponentDestroy)
       ).subscribe()
   }
  
   showAndCheckForData(){
-    this.commonService.noResultsFound.subscribe((areData:boolean)=>{
-        this.checkForResults = areData
-    })
-    this.commonService.onSearchButtonClick.subscribe((list:any)=>{
-      this.peopleList = list;
-      this.commonService.formatAndSaveSearched(this.savedSearchedValues);
-    })
+    this.commonService.noResultsFound.pipe(
+      tap((areData:boolean)=>{
+        this.checkForResults = areData}),
+        takeUntil(this.onComponentDestroy)
+    ).subscribe()
+    this.commonService.onSearchButtonClick.pipe(
+      tap((list:any)=>{
+        this.peopleList = list;
+        this.commonService.formatAndSaveSearched(this.savedSearchedValues);
+      }),
+      takeUntil(this.onComponentDestroy)
+    ).subscribe()
   }
 
   getDetailsOfPeople(url:string){
@@ -65,7 +72,12 @@ export class PeopleComponent implements OnInit {
         this.router.navigate([`${idSelected}`], {
           relativeTo: this.route,
         });
-      })
+      }),
+      takeUntil(this.onComponentDestroy)
     ).subscribe()
+  }
+  ngOnDestroy(){
+    this.onComponentDestroy.next();
+    this.onComponentDestroy.complete();
   }
 }

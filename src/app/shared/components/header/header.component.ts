@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Params, RouteConfigLoadStart, Router } from '@angular/router';
-import { BehaviorSubject, from } from 'rxjs';
-import { filter, finalize, map, mergeMap, switchMap, tap } from 'rxjs/operators';
+import { NavigationEnd, Router } from '@angular/router';
+import { BehaviorSubject, from, Subject } from 'rxjs';
+import { map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { People, PeopleResponse } from 'src/app/panel/people/models/people.model';
 import { PeopleService } from 'src/app/panel/people/services/people.service';
 import { Planet } from 'src/app/panel/planet/models/planet.model';
@@ -16,7 +16,8 @@ import { CommonService } from '../../services/common.service';
 export class HeaderComponent implements OnInit {
   selectedModule: BehaviorSubject<string> = new BehaviorSubject(ListUtils.LINKS_LIST[0].code);
   searchedField!: string;
-  searchedValues: any = JSON.parse(sessionStorage.getItem('lastSearched')!)
+  searchedValues: any = JSON.parse(sessionStorage.getItem('lastSearched')!);
+  private onComponentDestroy: Subject<void> = new Subject<void>();
   constructor(public router: Router,private commonService: CommonService, private peopleService: PeopleService) { }
 
   ngOnInit(): void {
@@ -58,6 +59,7 @@ export class HeaderComponent implements OnInit {
             }),
           )
         ),
+        takeUntil(this.onComponentDestroy)
       ).subscribe()
     }
     else{
@@ -68,7 +70,8 @@ export class HeaderComponent implements OnInit {
           }
           elements.count ? this.commonService.noResultsFound.next(false) : this.commonService.noResultsFound.next(true)
           this.commonService.onSearchButtonClick.emit(elements);
-        })
+        }),
+        takeUntil(this.onComponentDestroy)
       ).subscribe()
     }
 
@@ -77,6 +80,7 @@ export class HeaderComponent implements OnInit {
     this.searchedField = searchValue;
   }
   ngOnDestroy(){
-    this.selectedModule.unsubscribe();
+    this.onComponentDestroy.next();
+    this.onComponentDestroy.complete();
   }
 }

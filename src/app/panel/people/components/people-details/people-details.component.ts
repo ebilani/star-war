@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { People } from '../../models/people.model';
 import { PeopleService } from '../../services/people.service';
 
@@ -11,7 +12,7 @@ import { PeopleService } from '../../services/people.service';
 })
 export class PeopleDetailsComponent implements OnInit {
   personProps: any = {};
-
+  private onComponentDestroy: Subject<void> = new Subject<void>();
   constructor(private peopleService: PeopleService,  private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -28,8 +29,14 @@ export class PeopleDetailsComponent implements OnInit {
         this.peopleService.getPeopleDetailOnReload(this.route.snapshot.params.id).pipe(
           tap((person: People) =>{
             this.personProps = person
-          })
+          }),
+          takeUntil(this.onComponentDestroy)
         ).subscribe()
       }
      }
+     ngOnDestroy(){
+      this.peopleService.selectedPerson.unsubscribe()
+      this.onComponentDestroy.next();
+      this.onComponentDestroy.complete();
+    }
 }

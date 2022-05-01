@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import ListUtils from 'src/app/shared/commons/list-utils';
-import { CommonService } from '../../services/common.service';
 
 @Component({
   selector: 'star-layout',
