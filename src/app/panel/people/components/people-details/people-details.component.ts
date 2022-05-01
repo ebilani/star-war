@@ -35,7 +35,6 @@ export class PeopleDetailsComponent implements OnInit {
       }
      }
      ngOnDestroy(){
-      this.peopleService.selectedPerson.unsubscribe()
       this.onComponentDestroy.next();
       this.onComponentDestroy.complete();
     }

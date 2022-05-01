@@ -35,7 +35,6 @@ export class StarshipDetailsComponent implements OnInit {
       }
      }
      ngOnDestroy(){
-      this.starshipsService.selectedStarship.unsubscribe();
       this.onComponentDestroy.next();
       this.onComponentDestroy.complete();
     }
